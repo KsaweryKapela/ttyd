@@ -1,7 +1,8 @@
 FROM python:3.7-alpine
 
 # Copy api files
-COPY . /opt
+RUN mkdir -p /opt/api
+COPY . /opt/api
 
 # Set envs
 ENV https_proxy=

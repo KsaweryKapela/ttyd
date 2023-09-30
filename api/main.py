@@ -4,7 +4,11 @@ from pydantic import BaseModel
 from typing import Union
 from common import *
 import os
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # Ignore if not installed, hope it's in the env already :P
 
 app = FastAPI()
 

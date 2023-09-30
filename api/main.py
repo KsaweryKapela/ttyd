@@ -76,7 +76,5 @@ async def prompt(body: PromptBody):
 
 @app.get("/tables")
 async def get_tables():
-    c.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    result = c.fetchall()
+    return tables
 
-    return [item for sublist in result for item in sublist]

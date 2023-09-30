@@ -2,11 +2,13 @@ version: '3'
 
 services:
   api:
-    image: ttyd-api
+    build:
+      context: api      
     ports:
-      - 80:80
+      - 127.0.0.1:5003:80
 
   frontend:
-    image: ttyd-frontend
+    build:
+      context: frontend
     ports:
-      - 3000:3000
+      - 127.0.0.1:5004:3000

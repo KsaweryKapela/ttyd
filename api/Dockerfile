@@ -17,8 +17,6 @@ RUN apk add --no-cache bash
 # Install requirements
 RUN pip install fastapi uvicorn
 
-EXPOSE 80
-
 WORKDIR /opt/api
 
 # Run api

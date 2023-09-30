@@ -15,8 +15,5 @@ RUN npm install
 
 COPY . .
 
-#exposes port 3000
-EXPOSE 3000
-
 #runs the comand npm start
 CMD ["npx", "vite", "--port", "3000", "--host"]

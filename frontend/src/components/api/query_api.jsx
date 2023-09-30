@@ -2,7 +2,7 @@ import default_axios from './default_axios';
 
 async function query_api(query) {
   console.log(query)
-    const response = await default_axios.post('/mock_query', {
+    const response = await default_axios.post('/query', {
         query: query
     })
   return response

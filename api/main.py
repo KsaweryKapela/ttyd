@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from typing import Union
 from common import *
 import os
-from dotenv import load_dotenv
 
 app = FastAPI()
 
@@ -20,15 +19,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.get("/")
-async def root():
-    return {"message": f"Hello World"}
+class QueryBody(BaseModel):
+    query: str
 
 @app.post("/query")
-async def data(q: str):
-    return c.execute(f"{q}").fetchall()
+async def data(body: QueryBody):
+    print(body)
 
+    c.execute(body.query)
+    result = c.fetchall()
+
+    # Extract column names
+    columns = [desc[0] for desc in c.description]
+    
+    # Prepare the response
+    response = {"headers": columns, "data": result}
+
+    return response
 
 @app.get("/translate")
 async def translate(q: str):
@@ -41,16 +48,10 @@ class PromptBody(BaseModel):
     prompt: str
     query: str
 
-class QueryBody(BaseModel):
-    query: str
-
 def read_ddl_from_db():
     pass
 
 def infere_model(ddl, prompt, query):
-    pass
-
-def execute_query(query):
     pass
 
 @app.post("/mock_prompt")
@@ -71,11 +72,4 @@ async def prompt(body: PromptBody):
         WHERE DOWOD_SPRZEDAZY LIKE
         '%FV%' AND P_96 > 1000; """
     }
-    return response
-
-@app.post("/mock_query")
-async def query(body: QueryBody):
-    print(body)
-    result = execute_query(body.query)
-    response = {"headers": ["SREDNIA_WARTOSC_FAKTURY", "DRUGI HEADER"], "data": [[1234.56, 1234.56], [56, 56]]}
     return response

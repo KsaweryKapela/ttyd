@@ -3,6 +3,10 @@ version: '3'
 services:
   api:
     image: ttyd-api
-    build: ./api
     ports:
       - 80:80
+
+  frontend:
+    image: ttyd-frontend
+    ports:
+      - 3000:3000

@@ -73,3 +73,10 @@ async def prompt(body: PromptBody):
         '%FV%' AND P_96 > 1000; """
     }
     return response
+
+@app.get("/tables")
+async def get_tables():
+    c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    result = c.fetchall()
+
+    return [item for sublist in result for item in sublist]

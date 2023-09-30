@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -78,3 +79,23 @@ async def prompt(body: PromptBody):
 async def get_tables():
     return tables
 
+@app.post('/ddl')
+async def get_ddl(q: str):
+    if not q in tables:
+        raise HTTPException(status_code=404, detail="Table not found!", )
+
+    c.execute(f"pragma table_info('{q}');")
+    result = c.fetchall()
+    result.insert(
+        0,
+        [
+            "ID",
+            "NAME",
+            "TYPE",
+            "REQUIRED",
+            "UNIQ",
+            "AUTO_INCREMENT"
+        ]
+    )
+
+    return result

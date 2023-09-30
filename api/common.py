@@ -1,7 +1,14 @@
 import sqlite3
 import os
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # Ignore if not installed, hope it's in the env already :P
 
-load_dotenv()
-conn = sqlite3.connect(os.environ.get('SQLITE_PATH'))
-c = conn.cursor()
+try:
+    conn = sqlite3.connect(os.environ.get('SQLITE_PATH'))
+    c = conn.cursor()
+except Exception as e:
+    print("So there probablt is actually not set ENV variable SQLITE_PATH, or the path is wrong.")
+    print(f"Error: {e}")

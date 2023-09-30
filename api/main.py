@@ -2,12 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Union
-# from common import *
+from common import *
 import os
 from dotenv import load_dotenv
 
 app = FastAPI()
-load_dotenv()
 
 origins = [
     "http://localhost:5173"
@@ -24,11 +23,17 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": f"Hello World{os.environ.get('SQLITE_PATH')}"}
+    return {"message": f"Hello World"}
 
 @app.post("/query")
 async def data(q: str):
     return c.execute(f"{q}").fetchall()
+
+
+@app.get("/translate")
+async def translate(q: str):
+    src_path=os.environ.get('TRANS_PATH')
+    return os.popen(f"bash {src_path} {q}").read().replace("\n", "")
 
 
 class PromptBody(BaseModel):
@@ -74,4 +79,3 @@ async def query(body: QueryBody):
     result = execute_query(body.query)
     response = {"headers": ["SREDNIA_WARTOSC_FAKTURY", "DRUGI HEADER"], "data": [[1234.56, 1234.56], [56, 56]]}
     return response
-

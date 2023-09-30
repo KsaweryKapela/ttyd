@@ -6,7 +6,7 @@ import prompt_api from './components/api/prompt_api';
 function App() {
   const [ddl, setDdl] = useState(null);
   const [query, setQuery] = useState('');
-  const [inputMethod, setInputMethod] = useState('readFromDb');
+  const [inputMethod, setInputMethod] = useState('provideAsText');
   const [response, setResponse] = useState('');
 
   const [prompt, setPrompt] = useState('');
@@ -36,15 +36,6 @@ function App() {
       <div>
       <h2>1. Provide your data scheme</h2>
       <div>
-        <label>
-          <input
-            type="radio"
-            value="readFromDb"
-            checked={inputMethod === 'readFromDb'}
-            onChange={(e) => setInputMethod(e.target.value)}
-          />
-          Read from DB
-        </label>
         <label>
           <input
             type="radio"

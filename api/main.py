@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Union
 from common import *
 import os
 try:
@@ -50,12 +49,9 @@ async def translate(q: str):
 
 
 class PromptBody(BaseModel):
-    ddl: Union[str, None]
+    ddl: str
     prompt: str
     query: str
-
-def read_ddl_from_db():
-    pass
 
 def infere_model(ddl, prompt, query):
     pass
@@ -65,8 +61,6 @@ async def prompt(body: PromptBody):
     ddl = body.ddl
     prompt = body.prompt
     query = body.query
-    if ddl is None:
-        ddl = read_ddl_from_db()
     print(body)
     result = infere_model(ddl, prompt, query)
 

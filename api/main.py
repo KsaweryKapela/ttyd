@@ -13,7 +13,8 @@ except ImportError:
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "http://localhost:5004"
 ]
 
 app.add_middleware(

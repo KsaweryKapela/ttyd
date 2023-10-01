@@ -31,12 +31,12 @@ function App() {
 
   return (
     <>
-      <h1>TALK TO YOUR DATA</h1>
-      <i></i>
+      <h1>Talk to your data</h1>
+      <img width="300" src='dist/assets/img/talk.png'/>
       <div>
       <h2>1. Provide your data scheme</h2>
-      <div>
-        <label>
+      <div style={{ marginBottom: '30px' }}>
+        <label style={{ marginRight: '20px' }}>
           <input
             type="radio"
             value="provideAsText"
@@ -72,16 +72,19 @@ function App() {
         </div>
       )}
       <h2>2. Describe the data you need</h2>
-      <textarea
-        onChange={(e) => setPrompt(e.target.value)} 
-        cols="30" 
-        rows="10">
-      </textarea>
-      <button onClick={generateQuery}>Generate query</button>
+      <div className='textarea-field'>
+        <textarea
+          onChange={(e) => setPrompt(e.target.value)} 
+          cols="30" 
+          rows="10">
+        </textarea>
+        <button onClick={generateQuery}>Generate query</button>
+      </div>
+      
     </div>
     <div>
         <h2>3. Execute query and get your data</h2>
-      <div>
+      <div className='textarea-field'>
         <textarea 
           value={query} 
           onChange={(e) => setQuery(e.target.value)} 

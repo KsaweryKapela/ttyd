@@ -1,3 +1,5 @@
+@import url('https://fonts.cdnfonts.com/css/campton');
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -28,12 +30,48 @@ body {
   display: flex;
   place-items: center;
   min-width: 320px;
+  background: rgb(16, 22, 40);
   min-height: 100vh;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  font-family: 'Campton', sans-serif;
+}
+
+h1, h2, h3, body {
+  font-family: 'Campton', sans-serif !important;
+}
+
+textarea {
+  background: #16203b;
+  border-radius: 20px;
+  border: none;
+  padding: 20px;
+  color: #ffffff;
+}
+
+h2 {
+  margin: 50px 0px;
+}
+
+.textarea-field textarea {
+  width: 100%;
+}
+
+.textarea-field button {
+  position: absolute;
+  left: 50%;
+  /* right: 50%; */
+  left: 50%;
+  transform: translate(-50%,0);
+  bottom: 20px;
+  transform: 'translate(-50%, -50%)',;
+}
+
+.textarea-field {
+  position: relative;
 }
 
 button {

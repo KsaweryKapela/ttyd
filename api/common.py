@@ -12,3 +12,6 @@ try:
 except Exception as e:
     print("So there probablt is actually not set ENV variable SQLITE_PATH, or the path is wrong.")
     print(f"Error: {e}")
+
+tables = [item for sublist in c.execute(
+    "SELECT name FROM sqlite_master WHERE type='table';").fetchall() for item in sublist]

@@ -55,6 +55,7 @@ class PromptBody(BaseModel):
     query: str
 
 def infere_model(ddl, prompt, query):
+    
     pass
 
 @app.post("/mock_prompt")

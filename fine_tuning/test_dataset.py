@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-i = 7
+i = 9
 # conn = sqlite3.connect(os.environ.get('SQLITE_PATH'))
 conn = sqlite3.connect(f'/home/ksaff/Desktop/ttyd/fine_tuning/fine_tune_dbs/dbs/ddl{i}.db')
 c = conn.cursor()

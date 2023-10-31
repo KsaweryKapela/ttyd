@@ -2,6 +2,9 @@ from fastapi import HTTPException
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import torch
+import gc
+from transformers import AutoTokenizer, LlamaForCausalLM
 from common import *
 import os
 try:
@@ -55,8 +58,35 @@ class PromptBody(BaseModel):
     query: str
 
 def infere_model(ddl, prompt, query):
-    
-    pass
+
+
+
+    gc.collect()
+    torch.cuda.empty_cache()
+    model_directory = "/home/ksaff/Desktop/ttyd/query_llama"
+    tokenizer = AutoTokenizer.from_pretrained(model_directory)
+    model = LlamaForCausalLM.from_pretrained(model_directory,
+                                            load_in_8bit=True,
+                                            device_map={'': 0})
+    input = ddl
+    prompt_2 = 'Make SQLite query based on DDL and instruction.'
+    instruction = 'Fetch me names of 5 poeple whos phone number starts with 6'
+    text = (
+        prompt_2
+        + '### Instruction:\n'
+        + prompt
+        + '### Input:\n'
+        + ddl
+        + '### Response:\n'
+    )
+
+    input_ids = tokenizer.encode(text, return_tensors='pt')
+    input_ids = input_ids.to('cuda')
+    output = model.generate(input_ids, max_length=1000, temperature=0.3, num_return_sequences=1)
+    generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+    match = re.search(r'### Response:\s*(.*)', generated_text)
+    response = match.group(1)
+    return response
 
 @app.post("/mock_prompt")
 async def prompt(body: PromptBody):

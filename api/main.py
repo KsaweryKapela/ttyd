@@ -88,23 +88,14 @@ def infere_model(ddl, prompt, query):
     response = match.group(1)
     return response
 
-@app.post("/mock_prompt")
+@app.post("/prompt")
 async def prompt(body: PromptBody):
     ddl = body.ddl
     prompt = body.prompt
     query = body.query
     print(body)
     result = infere_model(ddl, prompt, query)
-
-    response = { 
-        "query":
-    """ SELECT AVG(P_96) AS
-        SREDNIA_WARTOSC_FAKTURY
-        FROM VAT_SPRZEDAZ
-        WHERE DOWOD_SPRZEDAZY LIKE
-        '%FV%' AND P_96 > 1000; """
-    }
-    return response
+    return result
 
 @app.get("/tables")
 async def get_tables():

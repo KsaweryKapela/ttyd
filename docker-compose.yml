@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'  # Update this to a newer version that supports device requests
 
 services:
   api:
@@ -8,6 +8,13 @@ services:
       - 127.0.0.1:5003:80
     volumes:
       - ./api:/opt/api
+    environment:  # Specify environment variables if needed
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:  # This section is used if you're using Docker in swarm mode
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
 
   frontend:
     build:
@@ -16,4 +23,4 @@ services:
       - 127.0.0.1:5004:3000
     volumes:
       - ./frontend:/app/src
-      - /app/src/node_modues
+      - /app/src/node_modules

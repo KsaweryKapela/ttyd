@@ -15,6 +15,12 @@ except ImportError:
 
 app = FastAPI()
 
+model_directory = "/home/ksaff/Desktop/ttyd/query_llama"
+tokenizer = AutoTokenizer.from_pretrained(model_directory)
+model = LlamaForCausalLM.from_pretrained(model_directory,
+                                        load_in_8bit=True,
+                                        device_map={'': 0})
+
 origins = [
     "http://localhost:5173",
     "http://localhost:5004"
@@ -58,19 +64,9 @@ class PromptBody(BaseModel):
     query: str
 
 def infere_model(ddl, prompt, query):
-
-
-
     gc.collect()
     torch.cuda.empty_cache()
-    model_directory = "/home/ksaff/Desktop/ttyd/query_llama"
-    tokenizer = AutoTokenizer.from_pretrained(model_directory)
-    model = LlamaForCausalLM.from_pretrained(model_directory,
-                                            load_in_8bit=True,
-                                            device_map={'': 0})
-    input = ddl
     prompt_2 = 'Make SQLite query based on DDL and instruction.'
-    instruction = 'Fetch me names of 5 poeple whos phone number starts with 6'
     text = (
         prompt_2
         + '### Instruction:\n'

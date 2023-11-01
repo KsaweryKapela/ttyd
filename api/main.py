@@ -7,6 +7,8 @@ import gc
 from transformers import AutoTokenizer, LlamaForCausalLM
 from common import *
 import os
+import re
+
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -59,18 +61,14 @@ class PromptBody(BaseModel):
 
 def infere_model(ddl, prompt, query):
 
-
-
     gc.collect()
     torch.cuda.empty_cache()
-    model_directory = "/home/ksaff/Desktop/ttyd/query_llama"
+    model_directory = "mistralai/Mistral-7B-v0.1"
     tokenizer = AutoTokenizer.from_pretrained(model_directory)
     model = LlamaForCausalLM.from_pretrained(model_directory,
                                             load_in_8bit=True,
                                             device_map={'': 0})
-    input = ddl
     prompt_2 = 'Make SQLite query based on DDL and instruction.'
-    instruction = 'Fetch me names of 5 poeple whos phone number starts with 6'
     text = (
         prompt_2
         + '### Instruction:\n'
@@ -94,15 +92,11 @@ async def prompt(body: PromptBody):
     prompt = body.prompt
     query = body.query
     print(body)
-    result = infere_model(ddl, prompt, query)
+    model_response = infere_model(ddl, prompt, query)
 
     response = { 
         "query":
-    """ SELECT AVG(P_96) AS
-        SREDNIA_WARTOSC_FAKTURY
-        FROM VAT_SPRZEDAZ
-        WHERE DOWOD_SPRZEDAZY LIKE
-        '%FV%' AND P_96 > 1000; """
+        model_response
     }
     return response
 

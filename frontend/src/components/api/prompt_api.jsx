@@ -4,7 +4,7 @@ async function prompt_api(ddl, prompt, query) {
   console.log(ddl)
   console.log(prompt)
   console.log(query)
-    const response = await default_axios.post('/mock_prompt', {
+    const response = await default_axios.post('/prompt', {
         ddl: ddl,
         prompt: prompt,
         query: query

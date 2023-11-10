@@ -5,14 +5,7 @@ RUN mkdir -p /opt/api
 COPY . /opt/api
 COPY hackathon.db /opt/hackathon.db
 
-# Set envs
-ENV https_proxy=
-ENV HTTPS_PROXY=
 ENV SQLITE_PATH=/opt/hackathon.db
-ENV TRANS_PATH=/opt/translator.sh
-
-# Install bash
-# RUN apk add --no-cache bash
 
 WORKDIR /opt/api
 # COPY model model

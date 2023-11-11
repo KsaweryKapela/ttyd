@@ -8,7 +8,9 @@ services:
       - 127.0.0.1:5003:80
     volumes:
     - ./api:/opt/api
-    # environment:
+    - ./hackaton.db:/opt/api/hackaton.db
+    environment:
+      - DB_PATH=/opt/api/hackaton.db
     #   - NVIDIA_VISIBLE_DEVICES=all
     # deploy:
     #   resources:

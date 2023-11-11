@@ -23,6 +23,3 @@ services:
       context: frontend
     ports:
       - 127.0.0.1:5004:3000
-    volumes:
-      - ./frontend:/app/src
-      - /app/src/node_modules

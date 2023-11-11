@@ -1,129 +1,46 @@
-import { useState } from 'react'
-import './App.css'
-import query_api from './components/api/query_api';
+import React, { useState } from 'react';
+import DDLInput from './components/DDLInput';
+import NaturalQueryInput from './components/NaturalQueryInput';
+import GenerateQueryButton from './components/GenerateQueryButton';
+import SQLQueryInput from './components/SQLQueryInput';
+import ExecuteQueryButton from './components/ExecuteQueryButton';
+import QueryResultsDisplay from './components/QueryResultsDisplay';
 import prompt_api from './components/api/prompt_api';
+import query_api from './components/api/query_api';
 
 function App() {
-  const [ddl, setDdl] = useState(null);
-  const [query, setQuery] = useState('');
-  const [inputMethod, setInputMethod] = useState('provideAsText');
-  const [response, setResponse] = useState('');
+  const [ddlSchema, setDdlSchema] = useState('');
+  const [naturalQuery, setNaturalQuery] = useState('');
+  const [sqlQuery, setSqlQuery] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isQueryExecuting, setIsQueryExecuting] = useState(false);
+  const [queryResults, setQueryResults] = useState({ headers: null, data: null });
 
-  const [prompt, setPrompt] = useState('');
-  const generateQuery = async () => {
-    const response = await prompt_api(ddl, prompt, query);
-    setQuery(response.data.query);  // Assuming the response is structured as { data: 'your-query-string' }
+
+  const handleGenerateQuery = async () => {
+    setIsGenerating(true);
+    const response = await prompt_api(ddlSchema, naturalQuery);
+    setSqlQuery(response.data.query);
+    setIsGenerating(false);
   };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === 'application/sql') {
-      const reader = new FileReader();
-      reader.onload = (e) => setDdl(e.target.result);
-      reader.readAsText(file);
-    }
-  };
-
-  const executeQuery = async () => {
-    const response = await query_api(query);
-    setResponse(response.data);  // Assuming the response is structured as { data: 'your-query-result' }
+  const handleExecuteQuery = async () => {
+    setIsQueryExecuting(true);
+    const response = await query_api(sqlQuery);
+    setQueryResults({headers: response.data.headers, data: response.data.data});
+    setIsQueryExecuting(false);
   };
 
   return (
-    <>
-      <h1>Talk to your data</h1>
-      <img width="300" src='dist/assets/img/talk.png'/>
-      <div>
-      <h2>1. Provide your data scheme</h2>
-      <div style={{ marginBottom: '30px' }}>
-        <label style={{ marginRight: '20px' }}>
-          <input
-            type="radio"
-            value="provideAsText"
-            checked={inputMethod === 'provideAsText'}
-            onChange={(e) => setInputMethod(e.target.value)}
-          />
-          Provide as text
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="uploadSqlFile"
-            checked={inputMethod === 'uploadSqlFile'}
-            onChange={(e) => setInputMethod(e.target.value)}
-          />
-          Upload SQL File
-        </label>
-      </div>
-      {inputMethod === 'provideAsText' && (
-        <div>
-          <textarea
-          
-            onChange={(e) => setDdl(e.target.value)}
-            placeholder="Drop your DDL here or type it in"
-            cols="30"
-            rows="10"
-          ></textarea>
-        </div>
-      )}
-      {inputMethod === 'uploadSqlFile' && (
-        <div>
-          <input type="file" accept=".sql" onChange={handleFileUpload} />
-        </div>
-      )}
-      <h2>2. Describe the data you need</h2>
-      <div className='textarea-field'>
-        <textarea
-          onChange={(e) => setPrompt(e.target.value)} 
-          cols="30" 
-          rows="10">
-        </textarea>
-        <button onClick={generateQuery}>Generate query</button>
-      </div>
-      
+    <div className="container mx-auto p-4">
+      <DDLInput value={ddlSchema} onChange={setDdlSchema} />
+      <NaturalQueryInput value={naturalQuery} onChange={setNaturalQuery} />
+      <GenerateQueryButton onClick={handleGenerateQuery} disabled={!ddlSchema || !naturalQuery || isGenerating} />
+      <SQLQueryInput value={sqlQuery} onChange={setSqlQuery} />
+      <ExecuteQueryButton onClick={handleExecuteQuery} disabled={!sqlQuery || isQueryExecuting} />
+      <QueryResultsDisplay headers={queryResults.headers} data={queryResults.data} />
     </div>
-    <div>
-        <h2>3. Execute query and get your data</h2>
-      <div className='textarea-field'>
-        <textarea 
-          value={query} 
-          onChange={(e) => setQuery(e.target.value)} 
-          cols="30" 
-          rows="10">
-        </textarea>
-        <button onClick={executeQuery}>Execute query</button>
-      </div>
-    </div>
-    
-    <div>
-        <h2>4. View your results</h2>
-      <table>
-        <thead>
-          {
-            response && response.headers && (
-              <tr>
-                {response.headers.map((header) => (
-                  <th key={header}>{header}</th>
-                ))} 
-              </tr>
-            )
-          }
-        </thead>
-        <tbody>
-          {
-            response && response.data && response.data.map((row) => (
-              <tr key={row}>
-                {row.map((cell) => (
-                  <td key={cell}>{cell}</td>
-                ))}
-              </tr>
-            ))
-          }
-        </tbody>
-      </table>
-    </div>
-    </>
-  )
+  );
 }
 
 export default App

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from db import get_connection
+from db import execute_query
 from model_handler import infere_model
 
 
@@ -26,15 +26,12 @@ class QueryBody(BaseModel):
 
 @app.post("/query")
 async def data(body: QueryBody):
-    try:
-        with get_connection() as connection:
-            result_proxy = connection.execute(body.query)
-            results = result_proxy.fetchall()
-            columns = result_proxy.keys()  # Get column names
-            response = {"headers": columns, "data": [dict(row) for row in results]}
-            return response
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    # try:
+    columns, results = execute_query(body.query)
+    response = {"headers": columns, "data": [dict(row) for row in results]}
+    return response
+    # except Exception as e:
+    #     raise HTTPException(status_code=400, detail=str(e))
 
 
 class PromptBody(BaseModel):

@@ -20,6 +20,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+async def healthcheck():
+    return {"status": "ok"}
 
 class QueryBody(BaseModel):
     query: str

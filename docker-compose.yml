@@ -8,7 +8,9 @@ services:
       - 127.0.0.1:5003:80
     volumes:
     - ./api:/opt/api
+    - ./hackathon.db:/opt/hackathon.db
     environment:
+      - DB_PATH=/opt/hackathon.db
       - NVIDIA_VISIBLE_DEVICES=all
     deploy:
       resources:
@@ -21,6 +23,3 @@ services:
       context: frontend
     ports:
       - 127.0.0.1:5004:3000
-    volumes:
-      - ./frontend:/app/src
-      - /app/src/node_modules

@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import os
 
 DB_PATH = os.environ.get('DB_PATH')
@@ -12,3 +12,10 @@ def get_connection():
     engine = get_engine()
     connection = engine.connect()
     return connection
+
+def execute_query(query):
+    with get_connection() as connection:
+        result_proxy = connection.execute(text(query))
+        columns = [str(col) for col in result_proxy.keys()]
+        results = [list(row) for row in result_proxy.fetchall()]
+        return columns, results

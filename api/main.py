@@ -1,14 +1,13 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from db import get_connection
+from db import execute_query
 from model_handler import infere_model
 
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",
     "http://localhost:5004"
 ]
 
@@ -20,21 +19,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+async def healthcheck():
+    return {"status": "ok"}
 
 class QueryBody(BaseModel):
     query: str
 
 @app.post("/query")
 async def data(body: QueryBody):
-    try:
-        with get_connection() as connection:
-            result_proxy = connection.execute(body.query)
-            results = result_proxy.fetchall()
-            columns = result_proxy.keys()  # Get column names
-            response = {"headers": columns, "data": [dict(row) for row in results]}
-            return response
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    columns, results = execute_query(body.query)
+    response = {"headers": columns, "data": results}
+    return response
+
 
 
 class PromptBody(BaseModel):

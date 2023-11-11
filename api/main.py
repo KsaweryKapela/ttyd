@@ -1,15 +1,13 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from db import execute_query
-# from model_handler import infere_model
-from mock_handler import infere_model
+from model_handler import infere_model
 
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",
     "http://localhost:5004"
 ]
 
@@ -30,12 +28,10 @@ class QueryBody(BaseModel):
 
 @app.post("/query")
 async def data(body: QueryBody):
-    # try:
     columns, results = execute_query(body.query)
     response = {"headers": columns, "data": results}
     return response
-    # except Exception as e:
-    #     raise HTTPException(status_code=400, detail=str(e))
+
 
 
 class PromptBody(BaseModel):

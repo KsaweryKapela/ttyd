@@ -2,12 +2,9 @@ import torch
 from transformers import AutoTokenizer
 import re
 import gc
-import subprocess
-import sys
 from peft import AutoPeftModelForCausalLM
 
 
-subprocess.check_call([sys.executable, "-m", "pip", "install", "peft"])
 gc.collect()
 torch.cuda.empty_cache()
 model_directory = '/opt/api/model'

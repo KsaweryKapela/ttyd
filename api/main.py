@@ -28,7 +28,7 @@ class QueryBody(BaseModel):
 async def data(body: QueryBody):
     # try:
     columns, results = execute_query(body.query)
-    response = {"headers": columns, "data": [dict(row) for row in results]}
+    response = {"headers": columns, "data": results}
     return response
     # except Exception as e:
     #     raise HTTPException(status_code=400, detail=str(e))

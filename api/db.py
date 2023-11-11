@@ -16,6 +16,6 @@ def get_connection():
 def execute_query(query):
     with get_connection() as connection:
         result_proxy = connection.execute(text(query))
-        results = result_proxy.fetchall()
-        columns = result_proxy.keys()
+        columns = [str(col) for col in result_proxy.keys()]
+        results = [list(row) for row in result_proxy.fetchall()]
         return columns, results

@@ -2,7 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from db import execute_query
-from model_handler import infere_model
+# from model_handler import infere_model
+from mock_handler import infere_model
 
 
 app = FastAPI()

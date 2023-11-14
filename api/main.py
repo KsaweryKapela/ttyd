@@ -10,7 +10,6 @@ import os
 import re
 import sys
 import subprocess
-subprocess.check_call([sys.executable, "-m", "pip", "install", "peft"])
 from peft import AutoPeftModelForCausalLM
 
 try:
@@ -21,6 +20,7 @@ except ImportError:
 
 app = FastAPI()
 
+print(os.listdir('/opt/api'))
 gc.collect()
 torch.cuda.empty_cache()
 
@@ -49,6 +49,7 @@ class QueryBody(BaseModel):
 
 @app.post("/query")
 async def data(body: QueryBody):
+    
     try:
         c.execute(body.query)
         result = c.fetchall()
@@ -59,8 +60,8 @@ async def data(body: QueryBody):
         response = {"headers": columns, "data": result}
 
         return response
-    except:
-        print('query does not work')
+    except Exception as e:
+        print('query does not work', e)
 
 @app.get("/translate")
 async def translate(q: str):
@@ -74,7 +75,6 @@ class PromptBody(BaseModel):
     query: str
 
 def infere_model(ddl, prompt):
-
 
     prompt_2 = 'Make SQLite query based on DDL and instruction.'
     text = (
@@ -94,9 +94,10 @@ def infere_model(ddl, prompt):
     }
     output = model.generate(**inputs)
     generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
-    match = re.search(r'### Response:\s*(.*?)', generated_text)
-    response = match.group(1)
     print(generated_text)
+    match = re.search(r"### Response:\s*(.+?);", generated_text)    
+    response = match.group(1)
+    print('response', response)
     return response
 
 @app.post("/prompt")

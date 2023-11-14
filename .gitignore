@@ -63,3 +63,4 @@ fine_tuning/dataset
 fine_tuning/fine_tune_dbs
 fine_tuning/llama_finetuning
 description/sql
+description/sql/ddl.sql

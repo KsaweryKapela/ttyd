@@ -32,7 +32,7 @@ def infere_model(ddl, prompt):
     }
     output = model.generate(**inputs)
     generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
-    match = re.search(r'### Response:\s*(.*?)', generated_text)
+    match = re.search(r"### Response:\s*(.+?);", generated_text)
     response = match.group(1)
-    print(generated_text)
+    print(response)
     return response

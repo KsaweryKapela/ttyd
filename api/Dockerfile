@@ -1,15 +1,14 @@
 FROM huggingface/transformers-pytorch-gpu
 
-# Copy api files
-RUN mkdir -p /opt/api
+WORKDIR /opt/api
 COPY . /opt/api
-COPY EngFinDB.db /opt/EngFinDB.db
+COPY hackathon.db /opt/hackathon.db
 COPY translator.sh /opt/translator.sh
 
 # Set envs
 ENV https_proxy=
 ENV HTTPS_PROXY=
-ENV SQLITE_PATH=/opt/EngFinDB.db
+ENV SQLITE_PATH=/opt/hackathon.db
 ENV TRANS_PATH=/opt/translator.sh
 
 # Install bash
@@ -17,7 +16,6 @@ ENV TRANS_PATH=/opt/translator.sh
 
 WORKDIR /opt/api
 # COPY model model
-
 # RUN apt-get update && \
 #     apt-get install -y git git-lfs && \
 #     git lfs install

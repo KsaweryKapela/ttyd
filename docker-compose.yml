@@ -8,9 +8,9 @@ services:
       - 127.0.0.1:5003:80
     volumes:
     - ./api:/opt/api
-    - ./hackathon.db:/opt/hackathon.db
+    - ./EngFinDB.db:/opt/EngFinDB.db
     environment:
-      - DB_PATH=/opt/hackathon.db
+      - DB_PATH=/opt/EngFinDB.db
       - NVIDIA_VISIBLE_DEVICES=all
     deploy:
       resources:

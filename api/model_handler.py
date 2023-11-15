@@ -1,12 +1,8 @@
-import torch
 from transformers import AutoTokenizer
 import re
-import gc
 from peft import AutoPeftModelForCausalLM
 
 
-gc.collect()
-torch.cuda.empty_cache()
 model_directory = '/opt/api/model'
 model = AutoPeftModelForCausalLM.from_pretrained(model_directory,
                                         load_in_8bit=True,

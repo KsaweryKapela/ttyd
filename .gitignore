@@ -12,3 +12,10 @@ fine_tuning/fine_tune_dbs
 fine_tuning/llama_finetuning
 description/sql
 EngFinDB.db
+
+fine_tuning/finetuning_commands_ds
+query_sql_mistral
+salary_query
+old
+fine_tuning/outputs
+fine_tuning/1st_try

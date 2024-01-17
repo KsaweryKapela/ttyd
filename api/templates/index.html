@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Query to SQL Converter</title>
+    <script>
+        function submitQuery() {
+            var userQuery = document.getElementById('user_query').value;
+            fetch('/convert-query', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_query: userQuery })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('sql_query').value = data.sql_query;
+                document.getElementById('execute_query_section').style.display = 'block';
+            });
+        }
+
+        function executeQuery() {
+            var sqlQuery = document.getElementById('sql_query').value;
+            fetch('/execute-query', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ sql_query: sqlQuery })
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data);
+            });
+        }
+
+        function displayResults(data) {
+            var resultDiv = document.getElementById('execution_result');
+            resultDiv.innerHTML = ''; // Clear previous results
+
+            if (data.error) {
+                resultDiv.textContent = 'Error: ' + data.error;
+                return;
+            }
+
+            // Create a table
+            var table = document.createElement('table');
+            table.style.width = '100%';
+            table.setAttribute('border', '1');
+
+            // Add table header
+            var thead = document.createElement('thead');
+            var headerRow = document.createElement('tr');
+            if (data.length > 0) {
+                Object.keys(data[0]).forEach(function(key) {
+                    var th = document.createElement('th');
+                    th.appendChild(document.createTextNode(key));
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+            }
+
+            // Add table body
+            var tbody = document.createElement('tbody');
+            data.forEach(function(row) {
+                var tr = document.createElement('tr');
+                Object.values(row).forEach(function(value) {
+                    var td = document.createElement('td');
+                    td.appendChild(document.createTextNode(value));
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+
+            resultDiv.appendChild(table);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('query-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitQuery();
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Enter Your Query</h1>
+    <form id="query-form">
+        <input type="text" id="user_query" placeholder="Enter your query">
+        <button type="submit">Convert to SQL</button>
+    </form>
+
+    <div id="execute_query_section" style="display:none;">
+        <h2>Editable SQL Query</h2>
+        <textarea id="sql_query" rows="4" cols="50"></textarea><br>
+        <button onclick="executeQuery()">Execute Query</button>
+        <div id="execution_result"></div>
+    </div>
+</body>
+</html>

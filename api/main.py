@@ -1,45 +1,47 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from db import execute_query
-from model_handler import infere_model
+from flask import Flask, render_template, request, jsonify, g
+import sqlite3
 
 
-app = FastAPI()
+app = Flask(__name__)
 
-origins = [
-    "http://localhost:5004"
-]
+DATABASE_PATH = '/home/ksaff/Desktop/sql/choosen_DB.sqlite'
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def get_db():
+    db = sqlite3.connect(DATABASE_PATH)
+    return db
 
-@app.get("/health")
-async def healthcheck():
-    return {"status": "ok"}
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-class QueryBody(BaseModel):
-    query: str
+@app.route('/convert-query', methods=['POST'])
+def convert_query():
+    data = request.get_json()
+    user_query = data['user_query']
+    sql_query = "SELECT EmployeeName FROM Salaries WHERE OvertimePay > 10000"
+    return jsonify({'sql_query': sql_query})
 
-@app.post("/query")
-async def data(body: QueryBody):
-    columns, results = execute_query(body.query)
-    response = {"headers": columns, "data": results}
-    return response
+@app.route('/execute-query', methods=['POST'])
+def execute_query():
+    data = request.get_json()
+    sql_query = data['sql_query']
+    
+    try:
+        db = get_db()
+        cursor = db.execute(sql_query)
 
+        rows = cursor.fetchall()
 
+        columns = [column[0] for column in cursor.description]
+        results = [dict(zip(columns, row)) for row in rows]
+        print(results)
+        return jsonify(results)
+    except sqlite3.Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if db:
+            db.close()
+        
 
-class PromptBody(BaseModel):
-    ddl: str
-    prompt: str
-
-@app.post("/prompt")
-async def prompt(body: PromptBody):
-    model_response = infere_model(body.ddl, body.prompt)
-    response = {"query":model_response}
-    return response
+if __name__ == '__main__':
+    app.run(debug=True)

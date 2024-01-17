@@ -2,9 +2,42 @@
 <html>
 <head>
     <title>Query to SQL Converter</title>
+    <link rel="stylesheet" href="static/style.css">
+    <style>
+        .required input:invalid {
+            border: 2px solid red;
+        }
+        .required input:valid {
+            border: 2px solid green;
+        }
+    </style>
     <script>
-        function submitQuery() {
-            var userQuery = document.getElementById('user_query').value;
+function resetMemory() {
+    // Clear all form inputs and textareas
+    for (let i = 1; i <= 3; i++) {
+        document.getElementById('user_query' + i).value = '';
+        document.getElementById('sql_query' + i).value = '';
+        document.getElementById('form' + i).style.display = 'none';
+    }
+    
+    // Reset the display of the first form
+    document.getElementById('form1').style.display = 'block';
+
+    // Send the request to reset the session on the server
+    fetch('/reset-memory', { method: 'POST' })
+    .then(() => {
+        window.location.reload(); // Refresh the page
+    });
+}
+
+        function submitQuery(formId, nextFormId) {
+            var userQueryInput = document.getElementById('user_query' + formId);
+            if (!userQueryInput.checkValidity()) {
+                userQueryInput.reportValidity();
+                return;
+            }
+
+            var userQuery = userQueryInput.value;
             fetch('/convert-query', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -12,13 +45,16 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('sql_query').value = data.sql_query;
-                document.getElementById('execute_query_section').style.display = 'block';
+                document.getElementById('sql_query' + formId).value = data.sql_query;
+                if (nextFormId <= 3) {
+                    document.getElementById('form' + nextFormId).style.display = 'block';
+                }
+                document.getElementById('submit_button' + formId).style.display = 'none';
             });
         }
 
-        function executeQuery() {
-            var sqlQuery = document.getElementById('sql_query').value;
+        function executeQuery(formId) {
+            var sqlQuery = document.getElementById('sql_query' + formId).value;
             fetch('/execute-query', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -73,26 +109,51 @@
             resultDiv.appendChild(table);
         }
 
+        
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('query-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                submitQuery();
-            });
+    for (let i = 1; i <= 3; i++) {
+        document.getElementById('query-form' + i).addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitQuery(i, i + 1);
         });
+        }});
     </script>
 </head>
 <body>
-    <h1>Enter Your Query</h1>
-    <form id="query-form">
-        <input type="text" id="user_query" placeholder="Enter your query">
-        <button type="submit">Convert to SQL</button>
-    </form>
 
-    <div id="execute_query_section" style="display:none;">
-        <h2>Editable SQL Query</h2>
-        <textarea id="sql_query" rows="4" cols="50"></textarea><br>
-        <button onclick="executeQuery()">Execute Query</button>
+    <h1>Enter Your Query</h1>
+    <button onclick="resetMemory()">Reset Memory</button>
+
+    <div id="form1" class="required">
+        <form id="query-form1">
+            <input type="text" id="user_query1" placeholder="What data do you need?" required>
+            <button type="submit" id="submit_button1">Convert to SQL</button>
+        </form>
+        <textarea id="sql_query1" rows="10" cols="50"></textarea>
+        <button onclick="executeQuery(1)">Execute Query</button>
+    </div>
+
+    <div id="form2" class="required" style="display:none;">
+        <form id="query-form2">
+            <input type="text" id="user_query2" placeholder="Should I change something?" required>
+            <button type="submit" id="submit_button2">Convert to SQL</button>
+        </form>
+        <textarea id="sql_query2" rows="10" cols="50"></textarea>
+        <button onclick="executeQuery(2)">Execute Query</button>
+    </div>
+
+    <div id="form3" class="required" style="display:none;">
+        <form id="query-form3">
+            <input type="text" id="user_query3" placeholder="Give me last change" required>
+            <button type="submit" id="submit_button3">Convert to SQL</button>
+        </form>
+        <textarea id="sql_query3" rows="10" cols="50"></textarea>
+        <button onclick="executeQuery(3)">Execute Query</button>
+    </div>
+
+    <div id="execute_query_section">
         <div id="execution_result"></div>
     </div>
+
 </body>
 </html>

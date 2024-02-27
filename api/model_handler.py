@@ -22,15 +22,16 @@ def load_llm():
     model = AutoModelForCausalLM.from_pretrained(
         config.base_model_name_or_path,
         return_dict=True,
-        quantization_config=bnb_config, device_map={'': 0}
+        quantization_config=bnb_config,
+        device_map={'': 0}
     )
     tokenizer = AutoTokenizer.from_pretrained(
-                                            config.base_model_name_or_path,
-                                            )
+                                            config.base_model_name_or_path)
 
+    model = model.bfloat16()
     generation_config = GenerationConfig.from_pretrained(model_id)
     generation_config.max_new_tokens = 1024
-    generation_config.max_time = 3
+    generation_config.max_time = 5
     generation_config.pad_token_id = 2
     
     text_pipeline = pipeline(
@@ -45,37 +46,39 @@ def load_llm():
 
 def create_prompt(question):
     database_scheme = """
-                         CREATE TABLE Salaries
-                         Id INTEGER PRIMARY KEY, -- Unique ID for each employee
-                         EmployeeName VARCHAR, -- Name of the employee
-                         JobTitle VARCHAR, -- Name of employees proffesion
-                         BasePay NUMERIC, -- Base pay of employee
-                         OvertimePay NUMERIC, -- Overtime pay of employee
-                         OtherPay NUMERIC, -- Other pays of employee
-                         Benefits NUMERIC, -- Benefits of employee
-                         TotalPay NUMERIC, -- Total pay of employee
-                         TotalPayBenefits NUMERIC, -- Sum of pay benefits of employee
-                         Year INTEGER, -- Year data from row reffers to
-                      """
+CREATE TABLE Salaries
+  Id INTEGER PRIMARY KEY, -- Unique ID for each employee
+  EmployeeName VARCHAR, -- Name of the employee
+  JobTitle VARCHAR, -- Name of employees proffesion
+  BasePay NUMERIC, -- Base pay of employee
+  OvertimePay NUMERIC, -- Overtime pay of employee
+  OtherPay NUMERIC, -- Other pays of employee
+  Benefits NUMERIC, -- Benefits of employee
+  TotalPay NUMERIC, -- Total pay of employee
+  TotalPayBenefits NUMERIC, -- Sum of pay benefits of employee
+  Year INTEGER, -- Year data from row reffers to
+"""
+
+    question = "Give me sum of all benefits in year 2013"
+
     text = (
-            f"""
-            ### Task
-            Generate a SQL query to answer the following question:
-            {question}
-            ### Database Schema
-            This query will run on a database whose schema is represented in this string:""" 
-            +
-            database_scheme
-            +
-            f"""
-            ### SQL
-            Given the database schema, here is the SQL query that answers `{question}`:
-            ```sql
-            """
-    )
+    f"""### Task
+    Generate a SQL query to answer the following question:
+    {question}
+### Database Schema
+    This query will run on a database whose schema is represented in this string:""" 
+    +
+    database_scheme
+    +
+f"""### SQL
+    Given the database schema, here is the SQL query that answers `{question}`:
+    ```sql
+    """
+)
     return text
 
 def setup_conversation_buff(llm):
+    print('creating new conv buff')
     memory = ConversationBufferMemory()
     conversation_buf = ConversationChain(
         llm=llm,
@@ -83,9 +86,12 @@ def setup_conversation_buff(llm):
     return conversation_buf
 
 def do_query(question, conversation):
+    
     text = create_prompt(question)
     response = conversation(text)
+
     print(f'question - {question}')
     print(response)
-    raw_query = response['response'].split("```")[-2].replace('sql', '')
-    return response['response']
+
+    # raw_query = response['response'].split("```")[-2].replace('sql', '')
+    return response['response'].split("```")[-2].replace('sql', '')

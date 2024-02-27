@@ -15,15 +15,7 @@ app = FastAPI()
 
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-DATABASE_URL = "sqlite:///./choosen_DB.sqlite"
+DATABASE_URL = "sqlite:////home/ksaff/Desktop/sql/choosen_DB.sqlite"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -36,6 +28,29 @@ class QueryRequest(BaseModel):
 class SQLQuery(BaseModel):
     sql_query: str
 
+class ConversationManager:
+    _instance = None
+    _is_initialized = False
+
+    def __init__(self, llm):
+        if not ConversationManager._is_initialized:
+            self.conversation_chain = setup_conversation_buff(llm)
+            ConversationManager._is_initialized = True
+
+    @classmethod
+    def get_conversation_chain(cls, llm=None):
+        if cls._instance is None:
+            if llm is None:
+                raise ValueError("LLM must be provided for the first initialization of ConversationManager.")
+            cls._instance = cls(llm)
+        return cls._instance.conversation_chain
+
+    @classmethod
+    def reset_instance(cls):
+        if cls._is_initialized:
+            cls._instance = None
+            cls._is_initialized = False
+    
 def get_db():
     db = SessionLocal()
     try:
@@ -45,23 +60,16 @@ def get_db():
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
+    ConversationManager.reset_instance()
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/convert-query")
 async def convert_query(query_request: QueryRequest, request: Request):
     user_query = query_request.user_query
-    context = request.session.get("context", [])
-    
-    if len(context) >= 3:
-        context = [user_query]
-    else:
-        context.append(user_query)
-    
-    request.session["context"] = context
 
-    conversation_buff = setup_conversation_buff(llm)
+    conversation_buff = ConversationManager.get_conversation_chain(llm)
+
     sql_query = do_query(question=user_query, conversation=conversation_buff)
-
     return JSONResponse(content={"sql_query": sql_query})
 
 @app.post("/execute-query")
@@ -77,4 +85,4 @@ async def execute_query(sql_query: SQLQuery, db: Session = Depends(get_db)):
 
 if __name__ == "__main__":
     llm = load_llm()
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info", reload=False)

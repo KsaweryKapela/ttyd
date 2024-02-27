@@ -31,7 +31,7 @@ def load_llm():
     model = model.bfloat16()
     generation_config = GenerationConfig.from_pretrained(model_id)
     generation_config.max_new_tokens = 1024
-    generation_config.max_time = 5
+    generation_config.max_time = 3
     generation_config.pad_token_id = 2
     
     text_pipeline = pipeline(
@@ -58,9 +58,6 @@ CREATE TABLE Salaries
   TotalPayBenefits NUMERIC, -- Sum of pay benefits of employee
   Year INTEGER, -- Year data from row reffers to
 """
-
-    question = "Give me sum of all benefits in year 2013"
-
     text = (
     f"""### Task
     Generate a SQL query to answer the following question:
@@ -94,4 +91,4 @@ def do_query(question, conversation):
     print(response)
 
     # raw_query = response['response'].split("```")[-2].replace('sql', '')
-    return response['response'].split("```")[-2].replace('sql', '')
+    return response['response'].split("```")[-2].replace('sql', '').replace('\n', '').replace('  ', '')

@@ -19,7 +19,7 @@ salary_query
 old
 fine_tuning/outputs
 fine_tuning/1st_try
-fine_tuning/2nd_try
+api/2nd_try
 queries.txt
 sqlcoder-7b
 flask_session

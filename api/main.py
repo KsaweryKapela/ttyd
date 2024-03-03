@@ -10,17 +10,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
 import uvicorn
+import time
+import os
 
 app = FastAPI()
 
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
-DATABASE_URL = "sqlite:////home/ksaff/Desktop/sql/choosen_DB.sqlite"
+DATABASE_URL = "sqlite:////opt/db.sqlite"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-templates = Jinja2Templates(directory="api/templates")
-app.mount("/static", StaticFiles(directory="api/static"), name="static")
+templates = Jinja2Templates(directory="/opt/api/templates")
+app.mount("/static", StaticFiles(directory="/opt/api/static"), name="static")
+
+llm = load_llm()
 
 class QueryRequest(BaseModel):
     user_query: str
@@ -83,6 +87,6 @@ async def execute_query(sql_query: SQLQuery, db: Session = Depends(get_db)):
     except sqlite3.Error as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-if __name__ == "__main__":
-    llm = load_llm()
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info", reload=False)
+# if __name__ == "__main__":
+    # uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info", reload=False)
+    # uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info", reload=False)

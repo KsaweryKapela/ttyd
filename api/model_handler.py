@@ -1,15 +1,17 @@
 import torch
 from peft import PeftModel, PeftConfig
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from langchain import HuggingFacePipeline
-from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig, pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig, BitsAndBytesConfig, pipeline
 from langchain.chains.conversation.memory import ConversationBufferMemory
 from langchain.chains import ConversationChain
+import subprocess
+import sys
 
 def load_llm():
-    model_id = "codellama/CodeLlama-34b-hf"
 
-    peft_model_id = "/home/ksaff/Desktop/ttyd/fine_tuning/2nd_try"
+    model_id = "/opt/api/model/snapshots/d3e967887d285343b8e239e26c6778c26931a536"
+    peft_model_id = "/opt/api/fine-tuned_model"
+
     config = PeftConfig.from_pretrained(peft_model_id)
 
     bnb_config = BitsAndBytesConfig(
@@ -47,16 +49,16 @@ def load_llm():
 def create_prompt(question):
     database_scheme = """
 CREATE TABLE Salaries
-  Id INTEGER PRIMARY KEY, -- Unique ID for each employee
-  EmployeeName VARCHAR, -- Name of the employee
-  JobTitle VARCHAR, -- Name of employees proffesion
-  BasePay NUMERIC, -- Base pay of employee
-  OvertimePay NUMERIC, -- Overtime pay of employee
-  OtherPay NUMERIC, -- Other pays of employee
-  Benefits NUMERIC, -- Benefits of employee
-  TotalPay NUMERIC, -- Total pay of employee
-  TotalPayBenefits NUMERIC, -- Sum of pay benefits of employee
-  Year INTEGER, -- Year data from row reffers to
+Id INTEGER PRIMARY KEY, -- Unique ID for each employee
+EmployeeName VARCHAR, -- Name of the employee
+JobTitle VARCHAR, -- Name of employees proffesion
+BasePay NUMERIC, -- Base pay of employee
+OvertimePay NUMERIC, -- Overtime pay of employee
+OtherPay NUMERIC, -- Other pays of employee
+Benefits NUMERIC, -- Benefits of employee
+TotalPay NUMERIC, -- Total pay of employee
+TotalPayBenefits NUMERIC, -- Sum of pay benefits of employee
+Year INTEGER, -- Year data from row reffers to
 """
     text = (
     f"""### Task

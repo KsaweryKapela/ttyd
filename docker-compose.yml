@@ -8,18 +8,12 @@ services:
       - 127.0.0.1:5003:80
     volumes:
     - ./api:/opt/api
-    - ./EngFinDB.db:/opt/EngFinDB.db
+    - ./db.sqlite:/opt/db.sqlite
     environment:
-      - DB_PATH=/opt/EngFinDB.db
+      - DB_PATH=/opt/db.sqlite
       - NVIDIA_VISIBLE_DEVICES=all
     deploy:
       resources:
         reservations:
           devices:
             - capabilities: ["gpu"]
-
-  frontend:
-    build:
-      context: frontend
-    ports:
-      - 127.0.0.1:5004:3000

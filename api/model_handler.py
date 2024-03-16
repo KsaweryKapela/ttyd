@@ -1,16 +1,17 @@
 import torch
 from peft import PeftModel, PeftConfig
-from langchain import HuggingFacePipeline
+from langchain.llms.huggingface_pipeline import HuggingFacePipeline
 from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig, BitsAndBytesConfig, pipeline
 from langchain.chains.conversation.memory import ConversationBufferMemory
 from langchain.chains import ConversationChain
-import subprocess
-import sys
+import os
 
 def load_llm():
 
-    model_id = "/opt/api/model/snapshots/d3e967887d285343b8e239e26c6778c26931a536"
-    peft_model_id = "/opt/api/fine-tuned_model"
+    API_PATH = os.environ.get('API_PATH')
+
+    model_id = f"{API_PATH}model/snapshots/d3e967887d285343b8e239e26c6778c26931a536"
+    peft_model_id = f"{API_PATH}fine-tuned_model"
 
     config = PeftConfig.from_pretrained(peft_model_id)
 
@@ -22,13 +23,13 @@ def load_llm():
                                     )
 
     model = AutoModelForCausalLM.from_pretrained(
-        config.base_model_name_or_path,
+        model_id,
         return_dict=True,
         quantization_config=bnb_config,
         device_map={'': 0}
     )
     tokenizer = AutoTokenizer.from_pretrained(
-                                            config.base_model_name_or_path)
+                                            model_id)
 
     model = model.bfloat16()
     generation_config = GenerationConfig.from_pretrained(model_id)
@@ -77,7 +78,6 @@ f"""### SQL
     return text
 
 def setup_conversation_buff(llm):
-    print('creating new conv buff')
     memory = ConversationBufferMemory()
     conversation_buf = ConversationChain(
         llm=llm,
@@ -88,9 +88,5 @@ def do_query(question, conversation):
     
     text = create_prompt(question)
     response = conversation(text)
-
-    print(f'question - {question}')
-    print(response)
-
-    # raw_query = response['response'].split("```")[-2].replace('sql', '')
+    
     return response['response'].split("```")[-2].replace('sql', '').replace('\n', '').replace('  ', '')

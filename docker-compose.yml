@@ -11,6 +11,8 @@ services:
     - ./db.sqlite:/opt/db.sqlite
     environment:
       - DB_PATH=/opt/db.sqlite
+      - API_PATH=/opt/api/
+      - DOCKERIZED=true
       - NVIDIA_VISIBLE_DEVICES=all
     deploy:
       resources:

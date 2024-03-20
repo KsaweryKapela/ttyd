@@ -13,11 +13,9 @@ import uvicorn
 import os
 import json
 
-if os.environ.get("DOCKERIZED") != "true":
+if not os.environ.get("DOCKERIZED"):
     from dotenv import load_dotenv
     load_dotenv()
-
-llm = load_llm()
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
@@ -32,6 +30,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 templates = Jinja2Templates(directory=f"{API_PATH}templates")
 app.mount("/static", StaticFiles(directory=f"{API_PATH}static"), name="static")
 
+llm = load_llm()
 
 class QueryRequest(BaseModel):
     user_query: str
@@ -88,6 +87,10 @@ async def execute_query(sql_query: SQLQuery, db: Session = Depends(get_db)):
     try:
         result = db.execute(text(sql_query.sql_query))
         rows = result.fetchall()
+
+        if len(rows) > 1001:
+            rows = rows[:1000]
+            
         columns = result.keys()
         results = [dict(zip(columns, row)) for row in rows]
         print(results)
@@ -96,6 +99,6 @@ async def execute_query(sql_query: SQLQuery, db: Session = Depends(get_db)):
     except sqlite3.Error as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-if os.environ.get("DOCKERIZED") != "true":
+if not os.environ.get("DOCKERIZED"):
     if __name__ == "__main__":
-        uvicorn.run("main:app", host="127.0.0.1", port=8000, log_level="info", reload=False)
+        uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info", reload=False)

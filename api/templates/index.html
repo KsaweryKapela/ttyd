@@ -62,7 +62,7 @@ function resetMemory() {
             })
             .then(response => response.json())
             .then(data => {
-                displayResults(data);
+                displayResults(data.query_result);
             });
         }
 

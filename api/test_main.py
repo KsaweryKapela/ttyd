@@ -3,7 +3,6 @@ from main import app, ConversationManager
 
 client = TestClient(app)
 
-
 def test_read_root():
     response = client.get("/")
     assert ConversationManager._is_initialized == False
@@ -18,7 +17,6 @@ def test_convert_query():
     assert "application/json" in response.headers["content-type"]
     assert "sql_query" in response.json()
     assert 'SELECT SUM(Benefits) FROM Salaries WHERE Year = 2013' in response.json()['sql_query']
-
 
 def test_execute_query():
     sql_query = {"sql_query": "SELECT SUM(Benefits) FROM Salaries WHERE Year = 2013"}

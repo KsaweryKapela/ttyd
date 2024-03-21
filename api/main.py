@@ -6,12 +6,10 @@ import sqlite3
 from model_handler import setup_conversation_buff, do_query, load_llm
 from sqlalchemy import create_engine, select, text
 from sqlalchemy.orm import Session, sessionmaker
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
 import uvicorn
 import os
-import json
 
 if not os.environ.get("DOCKERIZED"):
     from dotenv import load_dotenv

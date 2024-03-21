@@ -14,19 +14,17 @@ def insert_dummy_record(cursor, table_name):
         col_name = col[1]
         col_type = col[2].upper()
         col_not_null = col[3]
-        col_pk = col[5]  # Primary Key flag (1 if PK, 0 otherwise)
+        col_pk = col[5]
 
         column_names.append(col_name)
 
         if col_pk:
-            # For primary keys, inserting a unique numeric value
             values.append("1")
         elif col_type == 'TEXT':
             values.append("'dummy'")
         elif col_type == 'NUMERIC':
             values.append("1")
         elif col_not_null:
-            # If column has NOT NULL constraint but is not TEXT or NUMERIC
             values.append("'UNKNOWN'")
         else:
             values.append("NULL")
@@ -34,7 +32,6 @@ def insert_dummy_record(cursor, table_name):
     try:
         cursor.execute(f"INSERT INTO {table_name} ({','.join(column_names)}) VALUES ({','.join(values)});")
     except sqlite3.IntegrityError:
-        # If primary key conflict happens, try a larger unique number
         values[0] = "2"
         cursor.execute(f"INSERT INTO {table_name} ({','.join(column_names)}) VALUES ({','.join(values)});")
         
